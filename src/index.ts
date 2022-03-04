@@ -1,5 +1,5 @@
 import express from 'express'
-import { assetsPath, themes } from './constants'
+import { fontsPath, themes } from './constants'
 import * as fs from 'fs'
 import * as pfs from 'fs/promises'
 import * as path from 'path'
@@ -9,8 +9,17 @@ import { josa } from 'josa'
 import { registerFont } from 'canvas'
 import jwt from 'jsonwebtoken'
 
-registerFont(path.join(assetsPath, 'NotoSansKR-Bold.otf'), {
-    family: 'Noto Sans KR Bold',
+registerFont(path.join(fontsPath, 'NotoSansKR-Bold.otf'), {
+    family: 'Noto Sans KR',
+})
+registerFont(path.join(fontsPath, 'UbuntuMono-Regular.ttf'), {
+    family: 'Ubuntu Mono',
+})
+registerFont(path.join(fontsPath, 'SpoqaHanSansNeo-Bold.ttf'), {
+    family: 'Spoqa Han Sans Neo',
+})
+registerFont(path.join(fontsPath, 'KoPubWorld Dotum Bold.ttf'), {
+    family: 'KoPubWorldDotum',
 })
 
 process.on('uncaughtException', console.error)
@@ -25,6 +34,7 @@ const urlRegex = /^data:.+\/(.+);base64,(.*)$/
 Promise.all(
     fs.readdirSync(themesDir).map(async (x) => {
         const rarities = await pfs.readdir(path.join(themesDir, x))
+        // console.log(rarities)
         let res = []
         for (const rarity of rarities) {
             const module = require(path.join(themesDir, x, rarity))
@@ -68,6 +78,13 @@ Promise.all(
 
         canvas.loadFromJSON(rarity.data.canvasData, () => {
             canvas.getObjects('text').forEach((value) => {
+                const text = value as Text
+                for (const [k, v] of Object.entries(query)) {
+                    text.text = text.text!.split(`{${k}}`).join(v as string)
+                }
+                text.text = josa(text.text!)
+            })
+            canvas.getObjects('textbox').forEach((value) => {
                 const text = value as Text
                 for (const [k, v] of Object.entries(query)) {
                     text.text = text.text!.split(`{${k}}`).join(v as string)

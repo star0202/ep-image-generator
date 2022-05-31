@@ -27,6 +27,14 @@ process.on('unhandledRejection', console.error)
 
 const config = require('../config.json')
 
+if (process.env.PORT) {
+    config.port = process.env.PORT
+}
+
+if (process.env.JWT_TOKEN) {
+    config.token = process.env.JWT_TOKEN
+}
+
 const themesDir = path.join(__dirname, '../skins')
 
 const urlRegex = /^data:.+\/(.+);base64,(.*)$/
